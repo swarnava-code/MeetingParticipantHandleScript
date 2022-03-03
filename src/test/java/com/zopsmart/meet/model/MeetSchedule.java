@@ -3,7 +3,7 @@ package com.zopsmart.meet.model;
 import java.util.Date;
 
 public class MeetSchedule {
-    private String handleCode;
+    private String windowHandleCode;
     private String meetingCode;
     private Date meetingTime;
     private Boolean rightTimeStatus;
@@ -16,8 +16,8 @@ public class MeetSchedule {
         this.meetStatus = false;
     }
 
-    public void setHandleCode(String handleCode) {
-        this.handleCode = handleCode;
+    public void setWindowHandleCode(String windowHandleCode) {
+        this.windowHandleCode = windowHandleCode;
     }
 
     public void setMeetingCode(String meetingCode) {
@@ -28,8 +28,8 @@ public class MeetSchedule {
         this.meetingTime = meetingTime;
     }
 
-    public String getHandleCode() {
-        return handleCode;
+    public String getWindowHandleCode() {
+        return windowHandleCode;
     }
 
     public String getMeetingCode() {
@@ -62,5 +62,17 @@ public class MeetSchedule {
 
     public void setMeetStatus(Boolean meetStatus) {
         this.meetStatus = meetStatus;
+    }
+
+    @Override
+    public String toString() {
+        return "MeetSchedule{" +
+                "windowHandleCode='" + windowHandleCode + '\'' +
+                ", meetingCode='" + meetingCode + '\'' +
+                ", meetingTime=" + meetingTime +
+                ", rightTimeStatus=" + rightTimeStatus +
+                ", participantStatus=" + participantStatus +
+                ", meetStatus=" + meetStatus +
+                '}';
     }
 }

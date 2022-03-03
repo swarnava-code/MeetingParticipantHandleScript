@@ -57,7 +57,7 @@ public class MeetScript extends MeetBase {
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
-                meetingSchedule.put(meetDateTime, meetingCode);
+                //meetingSchedule.put(meetDateTime, meetingCode);
             }
             workbook.close();
             fis.close();
@@ -84,7 +84,7 @@ public class MeetScript extends MeetBase {
         } catch (Exception e) {
         }
     }
-
+/*
     @Test(priority = 3)
     void startAndHandleAllMeetings() {
         Date currentTime = null;
@@ -119,6 +119,8 @@ public class MeetScript extends MeetBase {
             System.out.println("=====================================");
         }
     }
+
+ */
 
     void mainController() {
         int minimumParticipantToLeftTheCall = 2;

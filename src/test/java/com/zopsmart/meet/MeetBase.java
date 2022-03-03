@@ -1,5 +1,6 @@
 package com.zopsmart.meet;
 
+import com.zopsmart.meet.model.MeetSchedule;
 import com.zopsmart.meet.utils.BaseUtility;
 import com.zopsmart.meet.utils.MyProperties;
 import com.zopsmart.meet.utils.MyUtils;
@@ -13,9 +14,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 
 import java.time.Duration;
-import java.util.Date;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 public class MeetBase {
     public WebDriver driver;
@@ -24,14 +23,15 @@ public class MeetBase {
     BaseUtility baseUtility = new BaseUtility();
     String username;
     String password;
-    Map<Date, String> meetingSchedule = new TreeMap<>();
+    //Map<Date, String> meetingSchedule = new TreeMap<>();
+    //Map<String, ArrayList<MeetSchedule>> meetingSchedule = new HashMap<String, ArrayList<MeetSchedule> >();
+    List<MeetSchedule>  meetingSchedule = new ArrayList<MeetSchedule>();
     MyUtils utils = new MyUtils();
     Robo robo = new Robo();
     String meetingCode;
     String pathForPropertyFile = "/home/swarnava/Desktop/password/dataFile.properties";
     String pathForSheet = "./src/test/files/meeting_sheet.xls";
     
-
     @BeforeClass
     public void setUpDriver() {
         WebDriverManager.chromedriver().setup();

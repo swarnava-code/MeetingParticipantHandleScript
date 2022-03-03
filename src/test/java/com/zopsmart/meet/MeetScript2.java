@@ -1,40 +1,21 @@
 package com.zopsmart.meet;
 
-import com.zopsmart.meet.pom.HomePage;
-import com.zopsmart.meet.pom.JoinPage;
-import com.zopsmart.meet.pom.MeetingPage;
-import com.zopsmart.meet.pom.SignInPage;
+import com.zopsmart.meet.model.MeetSchedule;
 import com.zopsmart.meet.utils.MyProperties;
-import com.zopsmart.meet.utils.MyUtils;
-import com.zopsmart.meet.utils.Robo;
-import com.zopsmart.meet.utils.ScriptUtility;
-import io.github.bonigarcia.wdm.WebDriverManager;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.WindowType;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Duration;
 import java.util.*;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class MeetScript2 extends MeetBase {
 
@@ -50,6 +31,7 @@ public class MeetScript2 extends MeetBase {
     @Test(priority = 1)
     public void readSheet() {
         int numberOfRow;
+        MeetSchedule meetSchedule;
         SimpleDateFormat dateParser = new SimpleDateFormat("MMM d yyyy HH:mm:ss");
         try {
             FileInputStream fis = new FileInputStream(pathForSheet);
@@ -67,7 +49,11 @@ public class MeetScript2 extends MeetBase {
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
-                meetingSchedule.put(meetDateTime, meetingCode);
+
+                meetSchedule = new MeetSchedule();
+                meetSchedule.setMeetingCode(meetingCode);
+                meetSchedule.setMeetingCode(meetingCode);
+                meetingSchedule.add(meetSchedule);
             }
             workbook.close();
             fis.close();
@@ -99,10 +85,25 @@ public class MeetScript2 extends MeetBase {
     void startAndHandleAllMeetings() {
         Date currentTime = null;
         System.out.println("\n Total meetings : " + meetingSchedule.size());
-        for (Date meetingTime : meetingSchedule.keySet()) {
-            System.out.println(meetingTime + " - " + meetingSchedule.get(meetingTime));
+
+        for (MeetSchedule meetSchedule : meetingSchedule) {
+            meetingCode = meetSchedule.getMeetingCode();
+            driver.switchTo().newWindow(WindowType.TAB);
+            driver.navigate().to("https://meet.google.com/" + meetingCode);
+            webDriverWait.until(ExpectedConditions.urlContains("meet.google.com"));
+            meetSchedule.setWindowHandleCode(driver.getWindowHandle());
+        }
+
+        for (MeetSchedule meetSchedule : meetingSchedule) {
+            System.out.println(meetSchedule.toString());
+        }
+
+/*
+        for (MeetSchedule meetSchedule : meetingSchedule) {
+            Date meetingTime = meetSchedule.getMeetingTime();
+            System.out.println(meetingTime + " - " + meetSchedule.getMeetingTime());
             currentTime = new Date();
-            meetingCode = meetingSchedule.get(meetingTime);
+            meetingCode = meetSchedule.getMeetingCode();
             // We can join 2 min. before, but not more than 2 min.
             int minimumPreJoinInMinute = 2;
             if (meetingTime.after(currentTime)) {
@@ -128,6 +129,8 @@ public class MeetScript2 extends MeetBase {
             }
             System.out.println("=====================================");
         }
+
+ */
     }
 
     void mainController() {
@@ -242,10 +245,6 @@ public class MeetScript2 extends MeetBase {
                 .elementToBeClickable(By.xpath("//span[text()='Start']")));
         clickAttemptTwoTime(clickOnStartPopupButton);
     }
-
-
-
-
 
 
     ////###############################################
