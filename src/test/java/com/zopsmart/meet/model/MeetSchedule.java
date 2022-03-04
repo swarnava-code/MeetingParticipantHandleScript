@@ -1,19 +1,26 @@
 package com.zopsmart.meet.model;
 
+import java.util.Comparator;
 import java.util.Date;
 
-public class MeetSchedule {
+public class MeetSchedule implements Comparable<MeetSchedule>, Comparator<MeetSchedule> {
     private String windowHandleCode;
     private String meetingCode;
     private Date meetingTime;
+    private Boolean oldAlreadyStatus;
     private Boolean rightTimeStatus;
     private Boolean participantStatus;
-    private Boolean meetStatus;
+    private Boolean meetStatus; // meetStatus is like main switch/ (done)
+    private Boolean recordingStatus;
+    private Boolean joinedAlreadyStatus;
 
     public MeetSchedule() {
         this.rightTimeStatus = false;
         this.participantStatus = false;
         this.meetStatus = false;
+        this.oldAlreadyStatus = false;
+        this.joinedAlreadyStatus = false;
+        this.recordingStatus = false;
     }
 
     public void setWindowHandleCode(String windowHandleCode) {
@@ -74,5 +81,44 @@ public class MeetSchedule {
                 ", participantStatus=" + participantStatus +
                 ", meetStatus=" + meetStatus +
                 '}';
+    }
+
+    public Boolean getRecordingStatus() {
+        return recordingStatus;
+    }
+
+    public void setRecordingStatus(Boolean recordingStatus) {
+        this.recordingStatus = recordingStatus;
+    }
+
+    public Boolean getOldAlreadyStatus() {
+        return oldAlreadyStatus;
+    }
+
+    public void setOldAlreadyStatus(Boolean oldAlreadyStatus) {
+        this.oldAlreadyStatus = oldAlreadyStatus;
+    }
+
+    public Boolean getJoinedAlreadyStatus() {
+        return joinedAlreadyStatus;
+    }
+
+    public void setJoinedAlreadyStatus(Boolean joinedAlreadyStatus) {
+        this.joinedAlreadyStatus = joinedAlreadyStatus;
+    }
+
+    @Override
+    public int compareTo(MeetSchedule o) {
+        return this.meetingTime.compareTo(o.meetingTime);
+    }
+
+    @Override
+    public int compare(MeetSchedule o1, MeetSchedule o2) {
+        return o1.meetingTime.compareTo(o2.meetingTime);
+    }
+
+    @Override
+    public Comparator<MeetSchedule> reversed() {
+        return Comparator.super.reversed();
     }
 }

@@ -12,7 +12,7 @@ public class BaseUtility {
 
     public WebDriver initDriver(WebDriver driver){
         WebDriverManager.chromedriver().setup();
-        ChromeOptions chromeOptions = new MyUtils().disableNotification();
+        ChromeOptions chromeOptions = new MyUtils().enableCameraAndMic(true);
         driver = new ChromeDriver(chromeOptions);
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
         driver.manage().timeouts().scriptTimeout(Duration.ofMinutes(2));

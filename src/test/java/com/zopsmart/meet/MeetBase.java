@@ -25,7 +25,7 @@ public class MeetBase {
     String password;
     //Map<Date, String> meetingSchedule = new TreeMap<>();
     //Map<String, ArrayList<MeetSchedule>> meetingSchedule = new HashMap<String, ArrayList<MeetSchedule> >();
-    List<MeetSchedule>  meetingSchedule = new ArrayList<MeetSchedule>();
+    static List<MeetSchedule>  meetingSchedule = new ArrayList<MeetSchedule>();
     MyUtils utils = new MyUtils();
     Robo robo = new Robo();
     String meetingCode;
@@ -35,11 +35,11 @@ public class MeetBase {
     @BeforeClass
     public void setUpDriver() {
         WebDriverManager.chromedriver().setup();
-        ChromeOptions chromeOptions = myUtils.disableNotification();
+        ChromeOptions chromeOptions = myUtils.enableCameraAndMic(false);
         driver = new ChromeDriver(chromeOptions);
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(30));
         driver.manage().timeouts().scriptTimeout(Duration.ofSeconds(30));
-        driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(100));
+        driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(30));//100
         webDriverWait = new WebDriverWait(driver, Duration.ofSeconds(30));
     }
 
@@ -47,7 +47,7 @@ public class MeetBase {
         //baseUtility.initDriver(driver);
         //baseUtility.initWebDriverWait(driver, webDriverWait);
         //        WebDriverManager.chromedriver().setup();
-        ChromeOptions chromeOptions = myUtils.disableNotification();
+        ChromeOptions chromeOptions = myUtils.enableCameraAndMic(true);
         driver = new ChromeDriver(chromeOptions);
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
         driver.manage().timeouts().scriptTimeout(Duration.ofMinutes(2));

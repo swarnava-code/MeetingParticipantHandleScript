@@ -53,7 +53,7 @@ public class GoogleMeetTestScript {
         wait = new WebDriverWait(driver, Duration.ofSeconds(20));
         driver.manage().window().maximize();
         driver.get("https://meet.google.com");
-        script = new ScriptUtility(driver, wait);
+        //script = new ScriptUtility(driver, wait);
     }
 
     @Test(priority = 1)
