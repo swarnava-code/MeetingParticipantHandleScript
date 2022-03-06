@@ -38,9 +38,9 @@ public class MeetBase {
         ChromeOptions chromeOptions = myUtils.enableCameraAndMic(false);
         driver = new ChromeDriver(chromeOptions);
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(30));
-        driver.manage().timeouts().scriptTimeout(Duration.ofSeconds(30));
-        driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(30));//100
-        webDriverWait = new WebDriverWait(driver, Duration.ofSeconds(30));
+        driver.manage().timeouts().scriptTimeout(Duration.ofSeconds(10));
+        driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(10));//100
+        webDriverWait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 
     void initDriver(){

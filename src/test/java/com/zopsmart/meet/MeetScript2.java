@@ -2,19 +2,22 @@ package com.zopsmart.meet;
 
 import com.zopsmart.meet.model.MeetSchedule;
 import com.zopsmart.meet.utils.MyProperties;
+import org.apache.commons.io.FileUtils;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.WindowType;
+import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.annotations.Test;
 
 import java.awt.event.KeyEvent;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -84,6 +87,59 @@ public class MeetScript2 extends MeetBase {
         }
     }
 
+   
+    @Test(priority = 3)
+    void startAndHandleAllMeetings() {
+        String tempWindowHandle;
+        Date currentTime;
+        final int minimumPreJoinInMinute = 2;
+        try {
+            openMeetingInTabsExceptOld();
+            while (countCompletionOfTab <= meetingSchedule.size()) {
+                for (MeetSchedule meetSchedule : meetingSchedule) {
+                    if (meetSchedule.getMeetStatus() == false) {
+                        if (meetSchedule.getRightTimeStatus()) {
+                            String windowHandle = meetSchedule.getWindowHandleCode();
+                            driver.switchTo().window(windowHandle);
+                            if (meetSchedule.getJoinedAlreadyStatus()) {
+                                if (meetSchedule.getRecordingStatus()) {
+                                    if (checkParticipant(meetSchedule)) {
+                                        try {
+                                            leaveTheMeetingCall();
+                                            meetSchedule.setParticipantStatus(true);
+                                            meetSchedule.setMeetStatus(true);
+                                            driver.close();
+                                            System.out.println(countCompletionOfTab + " <-> " + meetingSchedule.size());
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                } else {
+                                    startRec(meetSchedule);
+                                }
+                            } else {
+                                joinTheCall(meetSchedule);
+                            }
+                        } else { //check right time or not
+                            currentTime = new Date();
+                            long differenceInMs = meetSchedule.getMeetingTime().getTime() - currentTime.getTime();
+                            long differenceInMinutes = TimeUnit.MILLISECONDS.toMinutes(differenceInMs);
+                            if (differenceInMinutes <= minimumPreJoinInMinute) { //isItRightTime
+                                System.out.println("Need to Join for " + meetingSchedule.toString());
+                                meetSchedule.setRightTimeStatus(true);
+                                joinTheCall(meetSchedule);
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            takeScreenshot();
+            System.out.println("ss taken, Exception caught : " + e.toString());
+        }
+
+    }
+
     void openMeetingInTabsExceptOld() {
         Date currentTime = null;
         System.out.println("\n Total meetings : " + meetingSchedule.size());
@@ -93,16 +149,11 @@ public class MeetScript2 extends MeetBase {
                 currentTime = new Date();
                 if (meetSchedule.getMeetingTime().after(currentTime)) { //  if not old time then consider
                     meetingCode = meetSchedule.getMeetingCode();
-
-
                     driver.switchTo().newWindow(WindowType.TAB);
-                    while (driver.getWindowHandle()==null){
+                    while (driver.getWindowHandle() == null) {
                         Thread.sleep(5000);
                     }
                     driver.navigate().to("https://meet.google.com/" + meetingCode);
-
-
-                    //webDriverWait.until(ExpectedConditions.urlContains("meet.google.com"));
                     meetSchedule.setWindowHandleCode(driver.getWindowHandle());
                 } else { //  if old time then ignore
                     ++countCompletionOfTab;
@@ -117,61 +168,18 @@ public class MeetScript2 extends MeetBase {
         }
     }
 
-    @Test(priority = 3)
-    void startAndHandleAllMeetings() {
-        String tempWindowHandle;
-        Date currentTime;
-        final int minimumPreJoinInMinute = 2;
-        openMeetingInTabsExceptOld();
-        while (countCompletionOfTab <= meetingSchedule.size()) {
-            for (MeetSchedule meetSchedule : meetingSchedule) {
-                if (meetSchedule.getMeetStatus() == false) {
-                    if (meetSchedule.getRightTimeStatus()) {
-                        String windowHandle = meetSchedule.getWindowHandleCode();
-                        driver.switchTo().window(windowHandle);
-                        if (meetSchedule.getJoinedAlreadyStatus()) {
-                            if (meetSchedule.getRecordingStatus()) {
-                                if (checkParticipant(meetSchedule)) {
-                                    try {
-                                        leaveTheMeetingCall();
-                                        meetSchedule.setParticipantStatus(true);
-                                        meetSchedule.setMeetStatus(true);
-                                        System.out.println(countCompletionOfTab + " <-> " + meetingSchedule.size());
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                            } else {
-                                startRec(meetSchedule);
-                            }
-                        } else {
-                            joinTheCall(meetSchedule);
-                        }
-                    } else { //check right time or not
-                        currentTime = new Date();
-                        long differenceInMs = meetSchedule.getMeetingTime().getTime() - currentTime.getTime();
-                        long differenceInMinutes = TimeUnit.MILLISECONDS.toMinutes(differenceInMs);
-                        if (differenceInMinutes <= minimumPreJoinInMinute) { //isItRightTime
-                            System.out.println("Need to Join for " + meetingSchedule.toString());
-                            meetSchedule.setRightTimeStatus(true);
-                            joinTheCall(meetSchedule);
-                        }
-                    }
-                }
-            }
+    void takeScreenshot() {
+        TakesScreenshot takesScreenshot = (TakesScreenshot) driver;
+        File file = takesScreenshot.getScreenshotAs(OutputType.FILE);
+        File fileWithPath = new File("src/test/screenshots/ss_" + (new Date().getTime()) + ".jpg");
+        try {
+            FileUtils.copyFile(file, fileWithPath);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
     void leaveTheMeetingCall() {
-        driver.findElement(By.cssSelector("div[jsaction='JIbuQc:LD0JHb']")).click(); //end call
-    }
-
-    void mainController() {
-        int minimumParticipantToLeftTheCall = 2;
-        applyAndJoin();
-        dismissInsideCallPopup();
-        //startRec();
-        waitForParticipant(webDriverWait, minimumParticipantToLeftTheCall);
         driver.findElement(By.cssSelector("div[jsaction='JIbuQc:LD0JHb']")).click(); //end call
     }
 
@@ -190,10 +198,6 @@ public class MeetScript2 extends MeetBase {
     void joinTheCall(MeetSchedule meetSchedule) {
         String windowHandleCode = meetSchedule.getWindowHandleCode();
         if (windowHandleCode == null) {
-//            driver.switchTo().newWindow(WindowType.TAB);
-//            driver.
-//                    driver.getWindowHandle()
-           // ff
         } else {
             driver.switchTo().window(windowHandleCode);
         }
@@ -216,18 +220,6 @@ public class MeetScript2 extends MeetBase {
         }
     }
 
-    void joinAndStartRecording() {
-        checkCamMicBlockPopupAvailability();
-        WebElement joinNow =
-                utils.checkElementAvailability(driver, By.xpath("//span[text()='Join now']"), 10);
-        if (joinNow != null) {
-            joinNow.click();
-        }
-        dismissInsideCallPopup();
-        //startRec();
-        //checkParticipant();
-    }
-
     boolean checkParticipant(MeetSchedule meetSchedule) {
         if (checkParticipants(webDriverWait) >= minimumParticipantToLeftTheCall) {
             meetSchedule.setParticipantStatus(true);
@@ -235,16 +227,6 @@ public class MeetScript2 extends MeetBase {
             return true;
         }
         return false;
-    }
-
-    void applyAndJoin() {
-        joinNewLink();
-        checkCamMicBlockPopupAvailability();
-        WebElement joinNow =
-                utils.checkElementAvailability(driver, By.xpath("//span[text()='Join now']"), 10);
-        if (joinNow != null) {
-            joinNow.click();
-        }
     }
 
     void dismissInsideCallPopup() {
@@ -260,12 +242,6 @@ public class MeetScript2 extends MeetBase {
             dismissPopupInsideElement.click();
             robo.click(KeyEvent.VK_TAB);
             robo.click(KeyEvent.VK_ENTER);
-        }
-    }
-
-    void waitForParticipant(WebDriverWait webDriverWait, int minimumParticipantToLeftTheCall) {
-        while (checkParticipants(webDriverWait) < minimumParticipantToLeftTheCall) {
-            utils.waitForSomeTime(5);
         }
     }
 
@@ -300,65 +276,33 @@ public class MeetScript2 extends MeetBase {
         return numberOfParticipants;
     }
 
-    void clickAttemptTwoTime(WebElement webElement) {
+    void startRec(MeetSchedule meetSchedule) {
+        By moreOptions = By.xpath("(//div[@jscontroller='wg1P6b'])[2]");
+        By recordMeeting = By.xpath("(//li[@role='menuitem'])[2]");
+        By startRec = By.xpath("(//button[@class='VfPpkd-LgbsSe VfPpkd-LgbsSe-OWXEXe-k8QpJ VfPpkd-LgbsSe-OWXEXe-dgl2Hf Kjnxrf C1Uh5b DuMIQc qfvgSe pKAeHb'])[2]");
+        By startPopup = By.cssSelector("button[data-mdc-dialog-action='ok']");
+        By recordingIndicator = By.cssSelector("div[class='KHSqkf']"); //By.xpath("//i[text()='radio_button_checked']");
+        By dismissPopup = By.xpath("(//span[text()='Dismiss'])[2]");
         try {
-            webElement.click();
+            driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(2));
+            Thread.sleep(1000);
+            driver.findElement(dismissPopup).click();
+            driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(25));
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println("element not clickable : " + webElement);
         }
+
         try {
-            webElement.click();
+            driver.findElement(moreOptions).click();
+            driver.findElement(recordMeeting).click();
+            driver.findElement(startRec).click();
+            driver.findElement(startPopup).click();
+            Thread.sleep(1000);
+            if (driver.findElement(recordingIndicator).isDisplayed()) {
+                meetSchedule.setRecordingStatus(true);
+            }
         } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 
-    void startRec(MeetSchedule meetSchedule) {
-        WebDriverWait wait = new WebDriverWait(driver, 5);
-        try {
-            WebElement popupDismiss = wait.until(ExpectedConditions
-                    .elementToBeClickable(By.xpath("(//span[text()='Dismiss'])[2]")));
-            popupDismiss.click();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        try {
-            WebElement clickOnActivities = wait.until(ExpectedConditions
-                    .elementToBeClickable(By.cssSelector("button[aria-label='Activities']")));
-            clickOnActivities.click();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        try {
-            WebElement clickOnRecoding = webDriverWait.until(ExpectedConditions
-                    .elementToBeClickable(By.xpath("//li/span/span[text()='Recording']")));
-            clickOnRecoding.click();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        try {
-            WebElement clickOnStartRecoding = webDriverWait.until(ExpectedConditions
-                    .elementToBeClickable(By.xpath("//button/span[text()='Start recording']")));
-            clickOnStartRecoding.click();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        try {
-            WebElement clickOnStartPopupButton = webDriverWait.until(ExpectedConditions
-                    .elementToBeClickable(By.xpath("//span[text()='Start']")));
-            clickOnStartPopupButton.click();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        try {
-            WebElement clickOnStopRecoding = null;
-            clickOnStopRecoding =
-                    webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(
-                            By.xpath("//button/span[text()='Stop recording']")));
-            meetSchedule.setRecordingStatus(true);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 }
