@@ -3,7 +3,7 @@ package com.zopsmart.meet.model;
 import java.util.Comparator;
 import java.util.Date;
 
-public class MeetSchedule implements Comparable<MeetSchedule>, Comparator<MeetSchedule> {
+public class MeetSchedule implements Comparable<MeetSchedule> {
     private String windowHandleCode;
     private String meetingCode;
     private Date meetingTime;
@@ -13,6 +13,7 @@ public class MeetSchedule implements Comparable<MeetSchedule>, Comparator<MeetSc
     private Boolean meetStatus; // meetStatus is like main switch/ (done)
     private Boolean recordingStatus;
     private Boolean joinedAlreadyStatus;
+    private int retry = 0;
 
     public MeetSchedule() {
         this.rightTimeStatus = false;
@@ -107,18 +108,17 @@ public class MeetSchedule implements Comparable<MeetSchedule>, Comparator<MeetSc
         this.joinedAlreadyStatus = joinedAlreadyStatus;
     }
 
+    public int getRetry() {
+        return retry;
+    }
+
+    public void setRetry(int retry) {
+        this.retry = retry;
+    }
+
     @Override
     public int compareTo(MeetSchedule o) {
         return this.meetingTime.compareTo(o.meetingTime);
     }
 
-    @Override
-    public int compare(MeetSchedule o1, MeetSchedule o2) {
-        return o1.meetingTime.compareTo(o2.meetingTime);
-    }
-
-    @Override
-    public Comparator<MeetSchedule> reversed() {
-        return Comparator.super.reversed();
-    }
 }
