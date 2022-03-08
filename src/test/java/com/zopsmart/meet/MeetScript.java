@@ -16,6 +16,10 @@ import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
@@ -23,7 +27,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class MeetScript extends MeetBase {
-    static Logger log = LogManager.getLogger(MeetScript.class);
+    Logger log = LogManager.getLogger(MeetScript.class);
     final int minimumParticipantToLeftTheCall = 2;
     int countCompletionOfTab = 0;
 
@@ -32,43 +36,56 @@ public class MeetScript extends MeetBase {
         MyProperties myProperties = new MyProperties(pathForPropertyFile);
         username = myProperties.getUsername();
         password = myProperties.getPassword();
+        dbName = myProperties.getDbName();
+        url = myProperties.getUrl();
+        tableName = myProperties.getTableName();
+        dbUserName = myProperties.getDbUsername();
+        dbPassword = myProperties.getDbPassword();
     }
 
-    @Test(priority = 1)
-    public void readSheet() {
-        int numberOfRow;
-        MeetSchedule meetSchedule;
-        SimpleDateFormat dateParser = new SimpleDateFormat("MMM d yyyy HH:mm:ss");
+    @Test(priority = 2)
+    public void setDbConnection() {
         try {
-            FileInputStream fis = new FileInputStream(pathForSheet);
-            Workbook workbook = WorkbookFactory.create(fis);
-            numberOfRow = workbook.getSheet("Sheet1").getLastRowNum();
-            String meetingDate;
-            String meetingTime;
-            for (int i = 1; i <= numberOfRow; i++) {
-                meetingCode = workbook.getSheet("Sheet1").getRow(i).getCell(0).getStringCellValue();
-                meetingDate = workbook.getSheet("Sheet1").getRow(i).getCell(1).getStringCellValue();
-                meetingTime = workbook.getSheet("Sheet1").getRow(i).getCell(2).getStringCellValue();
-                Date meetDateTime = null;
+            connection = DriverManager.getConnection(url, dbUserName, dbPassword);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test(priority = 3)
+    public void retrieveDataFromDb() {
+        String query = "SELECT * from " + tableName + ";";
+        log.info("fetching data from db : "+tableName);
+        MeetSchedule meetSchedule;
+        String meetingCode;
+        String meetingDate;
+        String meetingTime;
+        SimpleDateFormat dateParser = new SimpleDateFormat("MMM d yyyy HH:mm:ss");
+        Date meetDateTime = null;
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(query);
+            System.out.println("start while");
+            while (resultSet.next()) {
+                meetingCode = resultSet.getString(COL_MEET_CODE);
+                meetingDate = resultSet.getString(COL_MEET_DATE);
+                meetingTime = resultSet.getString(COL_MEET_TIME);
                 try {
                     meetDateTime = dateParser.parse(meetingDate + " " + meetingTime);
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
-
                 meetSchedule = new MeetSchedule();
                 meetSchedule.setMeetingCode(meetingCode);
                 meetSchedule.setMeetingTime(meetDateTime);
                 meetingSchedule.add(meetSchedule);
             }
-            workbook.close();
-            fis.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    @Test(priority = 2)
+    @Test(priority = 4)
     void signIn() {
         log.info("sign in...");
         driver.navigate().to("https://meet.google.com/");
@@ -91,7 +108,7 @@ public class MeetScript extends MeetBase {
         }
     }
 
-    @Test(priority = 3)
+    @Test(priority = 5)
     void startAndHandleAllMeetings() {
         Date currentTime;
         final int minimumPreJoinInMinute = 2;
@@ -178,7 +195,7 @@ public class MeetScript extends MeetBase {
     }
 
     void takeScreenshot() {
-        try{
+        try {
             TakesScreenshot takesScreenshot = (TakesScreenshot) driver;
             File file = takesScreenshot.getScreenshotAs(OutputType.FILE);
             File fileWithPath = new File("src/test/screenshots/ss_"
@@ -188,7 +205,7 @@ public class MeetScript extends MeetBase {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }catch (Exception e){
+        } catch (Exception e) {
         }
     }
 
@@ -215,7 +232,7 @@ public class MeetScript extends MeetBase {
                     e.printStackTrace();
                 }
             } else {
-                //retry
+                // retry
                 if (meetSchedule.getRetry() < 3) {
                     meetSchedule.setRetry(meetSchedule.getRetry() + 1);
                     driver.navigate().refresh();
@@ -225,9 +242,7 @@ public class MeetScript extends MeetBase {
                     takeScreenshot();
                     driver.close();
                 }
-
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -319,7 +334,7 @@ public class MeetScript extends MeetBase {
                 meetSchedule.setRecordingStatus(true);
             }
         } catch (Exception e) {
-            log.info("element not found for startRec() "+e.toString());
+            log.info("element not found for startRec() " + e.toString());
             takeScreenshot();
         }
     }
