@@ -2,22 +2,22 @@ package com.zopsmart.meet.utils;
 
 import java.awt.*;
 
-public class Robo {
-    Robot robot;
+public class Robot {
+    java.awt.Robot robot;
 
-    public Robo() {
+    public Robot() {
         init();
     }
 
-    void init(){
+    void init() {
         try {
-            this.robot = new Robot();
+            this.robot = new java.awt.Robot();
         } catch (AWTException e) {
             e.printStackTrace();
         }
     }
 
-    public void click(int keycode){
+    public void click(int keycode) {
         robot.keyPress(keycode);
         robot.keyRelease(keycode);
         try {

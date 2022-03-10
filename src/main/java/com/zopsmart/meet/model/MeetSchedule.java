@@ -1,6 +1,5 @@
 package com.zopsmart.meet.model;
 
-import java.util.Comparator;
 import java.util.Date;
 
 public class MeetSchedule implements Comparable<MeetSchedule> {
@@ -72,17 +71,6 @@ public class MeetSchedule implements Comparable<MeetSchedule> {
         this.meetStatus = meetStatus;
     }
 
-    @Override
-    public String toString() {
-        return "MeetSchedule{" +
-                "windowHandleCode='" + windowHandleCode + '\'' +
-                ", meetingCode='" + meetingCode + '\'' +
-                ", meetingTime=" + meetingTime +
-                ", rightTimeStatus=" + rightTimeStatus +
-                ", participantStatus=" + participantStatus +
-                ", meetStatus=" + meetStatus +
-                '}';
-    }
 
     public Boolean getRecordingStatus() {
         return recordingStatus;
@@ -119,6 +107,18 @@ public class MeetSchedule implements Comparable<MeetSchedule> {
     @Override
     public int compareTo(MeetSchedule o) {
         return this.meetingTime.compareTo(o.meetingTime);
+    }
+
+    @Override
+    public String toString() {
+        return "MeetSchedule{" +
+                "windowHandleCode='" + windowHandleCode + '\'' +
+                ", meetingCode='" + meetingCode + '\'' +
+                ", meetingTime=" + meetingTime +
+                ", rightTimeStatus=" + rightTimeStatus +
+                ", participantStatus=" + participantStatus +
+                ", meetStatus=" + meetStatus +
+                '}';
     }
 
 }

@@ -1,41 +1,38 @@
-package com.zopsmart.meet.utils;
+package com.zopsmart.meet;
 
-import com.zopsmart.meet.MeetBase;
-import com.zopsmart.meet.model.MeetSchedule;
+import com.zopsmart.meet.utils.MyProperty;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.apache.poi.xddf.usermodel.text.TabAlignment;
 import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.FileInputStream;
 import java.sql.*;
 
-public class SheetToDb {
-    final String PATH_FOR_SHEET = "src/test/files/meeting_sheet.xls";
-    String pathForPropertyFile = "/home/swarnava/Desktop/password/dataFile.properties";
+public class SheetToDbScript extends MeetBase {
+    String pathForSheet;
     static Connection connection = null;
     String dbName;
-    String url;
+    String dbUrl;
     String tableName;
     String dbUserName;
     String dbPassword;
 
     @Test(priority = 1)
     void readPropertyFileForDbCredentials() {
-        MyProperties myProperties = new MyProperties(pathForPropertyFile);
+        MyProperty myProperties = new MyProperty(PATH_PROPERTY_FILE);
         dbName = myProperties.getDbName();
-        url = myProperties.getUrl();
+        dbUrl = myProperties.getDbUrl();
         tableName = myProperties.getTableName();
         dbUserName = myProperties.getDbUsername();
         dbPassword = myProperties.getDbPassword();
+        pathForSheet = myProperties.getSheetPath();
     }
 
     @Test(priority = 2)
     public void setConnection() {
         try {
-            connection = DriverManager.getConnection(url, dbUserName, dbPassword);
+            connection = DriverManager.getConnection(dbUrl, dbUserName, dbPassword);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -56,9 +53,10 @@ public class SheetToDb {
     public void readSheetAndImportIntoDb() {
         int numberOfRow;
         try {
-            FileInputStream fis = new FileInputStream(PATH_FOR_SHEET);
+            FileInputStream fis = new FileInputStream(pathForSheet);
             Workbook workbook = WorkbookFactory.create(fis);
             numberOfRow = workbook.getSheet("Sheet1").getLastRowNum();
+            System.out.println("no. of rows: " + numberOfRow);
             String meetingDate;
             String meetingTime;
             String meetingCode;

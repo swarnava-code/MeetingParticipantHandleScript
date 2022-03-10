@@ -8,32 +8,10 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MyUtils {
-
-
-    boolean waitUntilCorrectTimeNotComing(Date meetingTime, Date currentTime) {
-        while (meetingTime.after(currentTime)) {
-            currentTime = new Date();
-            try {
-                Thread.sleep(5000); // wait 5 second
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        return true;
-    }
-
-    public void waitForSomeTime(int second) {
-        try {
-            Thread.sleep((second * 1000)); // wait 5 second
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
+public class MyUtil {
 
     public WebElement checkElementAvailability(WebDriver driver, By by, int waitTimeInSecond) {
         WebDriverWait webDriverWait = new WebDriverWait(driver, Duration.ofSeconds(waitTimeInSecond));

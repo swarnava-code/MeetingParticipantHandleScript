@@ -1,1 +1,9 @@
 /target/
+.idea/
+logs/
+screenshots/
+zopsmart_meet.iml
+src/main/files/.*
+src/test/java/com/zopsmart/meet/test/*
+src/test/java/com/zopsmart/meet/MeetScript3.java
+src/test/java/com/zopsmart/meet/CassandraConnector.java
