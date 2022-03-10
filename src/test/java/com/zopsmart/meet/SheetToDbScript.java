@@ -27,25 +27,30 @@ public class SheetToDbScript extends MeetBase {
         dbUserName = myProperties.getDbUsername();
         dbPassword = myProperties.getDbPassword();
         pathForSheet = myProperties.getSheetPath();
+        System.out.println(myProperties.toString());
     }
 
     @Test(priority = 2)
     public void setConnection() {
         try {
             connection = DriverManager.getConnection(dbUrl, dbUserName, dbPassword);
+            System.out.println("connection established");
         } catch (SQLException e) {
+            System.out.println("connection failed");
             e.printStackTrace();
         }
     }
 
     @Test(priority = 3)
     public void deleteAllDataFromDb() {
+        String query = "DELETE FROM " + tableName + ";";
         try {
-            String query = "delete from " + tableName + ";";
-            System.out.println(query);
             PreparedStatement preparedStmt = connection.prepareStatement(query);
             preparedStmt.execute();
+            System.out.println(query+" (success)");
         } catch (Exception e) {
+            System.out.println(query+" (fail)");
+            e.printStackTrace();
         }
     }
 
@@ -65,8 +70,9 @@ public class SheetToDbScript extends MeetBase {
                 meetingCode = workbook.getSheet("Sheet1").getRow(i).getCell(0).getStringCellValue();
                 meetingDate = workbook.getSheet("Sheet1").getRow(i).getCell(1).getStringCellValue();
                 meetingTime = workbook.getSheet("Sheet1").getRow(i).getCell(2).getStringCellValue();
-                query = "Insert into " + tableName +
-                        " values  ('" + meetingCode + "', '" + meetingDate + "', '" + meetingTime + "' );";
+                query = "INSERT INTO " + tableName +
+                        " VALUES  ('" + meetingCode + "', '" + meetingDate + "', '" + meetingTime + "' );";
+                System.out.println(query);
                 try {
                     Statement statement = connection.createStatement();
                     statement.executeUpdate(query);
@@ -81,11 +87,13 @@ public class SheetToDbScript extends MeetBase {
         }
     }
 
-    @AfterClass
+    @Test(priority = 5)
     void closeConnection() {
         try {
             connection.close();
+            System.out.println("db connection closed");
         } catch (SQLException e) {
+            System.out.println("failed to close connection");
             e.printStackTrace();
         }
     }

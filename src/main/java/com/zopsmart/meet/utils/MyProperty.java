@@ -80,15 +80,15 @@ public class MyProperty {
     public String toString() {
         return "MyProperty{" +
                 "meetUrl='" + meetUrl + '\'' +
-                ", meetUsername='" + meetUsername + '\'' +
-                ", meetPassword='" + meetPassword + '\'' +
-                ", dbName='" + dbName + '\'' +
-                ", dbUsername='" + dbUsername + '\'' +
-                ", dbPassword='" + dbPassword + '\'' +
-                ", dbUrl='" + dbUrl + '\'' +
-                ", tableName='" + tableName + '\'' +
-                ", sheetPath='" + sheetPath + '\'' +
-                ", sheetName='" + sheetName + '\'' +
+                ", \nmeetUsername='" + meetUsername + '\'' +
+                ", \nmeetPassword='" + meetPassword + '\'' +
+                ", \ndbName='" + dbName + '\'' +
+                ", \ndbUsername='" + dbUsername + '\'' +
+                ", \ndbPassword='" + dbPassword + '\'' +
+                ", \ndbUrl='" + dbUrl + '\'' +
+                ", \ntableName='" + tableName + '\'' +
+                ", \nsheetPath='" + sheetPath + '\'' +
+                ", \nsheetName='" + sheetName + '\'' +
                 '}';
     }
 
