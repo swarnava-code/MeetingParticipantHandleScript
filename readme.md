@@ -8,7 +8,7 @@
 `src/test/java/com/zopsmart/meet/MeetBase.java`
 `PATH_PROPERTY_FILE`
 
-## SQL DB Structure
+## SQL Table Structure
 - column-1 should be for the meeting code (type:varchar).
 - column-2 should be for the meeting date (type:varchar).
 - column-3 should be for the meeting time (type:varchar).
