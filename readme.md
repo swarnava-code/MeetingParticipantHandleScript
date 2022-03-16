@@ -9,9 +9,16 @@
 `PATH_PROPERTY_FILE`
 
 ## SQL Table Structure
-- column-1 should be for the meeting code (type:varchar).
-- column-2 should be for the meeting date (type:varchar).
-- column-3 should be for the meeting time (type:varchar).
+```
+  CREATE TABLE Meet (
+        MeetCode VARCHAR(14) NOT NULL PRIMARY KEY,
+        MeetStartDate VARCHAR(12) NOT NULL,
+        MeetStartTime VARCHAR(8) NOT NULL,
+        MeetEndDate VARCHAR(12) NOT NULL,
+        MeetEndTime VARCHAR(8) NOT NULL,
+        Status VARCHAR(30)
+  );
+```
 
 ## Supported database:
 - mysql
