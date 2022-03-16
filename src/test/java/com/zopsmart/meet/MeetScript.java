@@ -1,5 +1,6 @@
 package com.zopsmart.meet;
 
+import com.zopsmart.meet.model.DbConfig;
 import com.zopsmart.meet.model.MeetSchedule;
 import com.zopsmart.meet.pom.SignInPage;
 import com.zopsmart.meet.utils.DataBaseUtil;
@@ -27,15 +28,22 @@ public class MeetScript extends MeetBase {
     }
 
     @Test(priority = 2)
-    void recodingTest(){
+    void recodingTest() {
         try {
             DataBaseUtil dataBaseUtil = new DataBaseUtil();
             SignInPage signInPage = new SignInPage();
-            List<MeetSchedule> meetingSchedule = dataBaseUtil.readDataFromDB(dbUserName, dbPassword, dbUrl, tableName);
+            DbConfig dbConfig = new DbConfig(dbUserName, dbPassword, dbUrl, tableName);
+            List<MeetSchedule> meetingSchedule = dataBaseUtil.readDataFromDB(dbConfig);
+
+            for (MeetSchedule meet :
+                    meetingSchedule) {
+                System.out.println(meet.toString());
+            }
+
             signInPage.signIn(driver, meetUserName, meetPassword, meetUrl);
             MeetingUtil meetingUtil = new MeetingUtil();
             meetingUtil.startAndHandleAllMeetings(driver, meetingSchedule);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

@@ -15,7 +15,7 @@ public class SignInPage {
     By passwordText = By.cssSelector("input[type='password']");
     By passwordNextButton = By.xpath("//span[text()='Next']");
 
-    public void signIn(WebDriver driver, String userName, String password,String url) {
+    public void signIn(WebDriver driver, String userName, String password, String url) {
         driver.navigate().to(url);
         //driver.get("https://meet.google.com/");
         driver.findElement(signInButton).click();
@@ -29,10 +29,17 @@ public class SignInPage {
         passwordInput.sendKeys(password);
         driver.findElement(passwordNextButton).click();
         //  log.info("login successfully");
+//        try {
+//            Thread.sleep(2000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+
         try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("a[class='gb_A gb_Ka gb_f']")));
+        } catch (Exception e) {
+            System.out.println("element not found");
         }
     }
+
 }

@@ -5,14 +5,21 @@ import java.util.Date;
 public class MeetSchedule implements Comparable<MeetSchedule> {
     private String windowHandleCode;
     private String meetingCode;
-    private Date meetingTime;
+    //private Date meetingTime;
+    private Date meetingStartTime;
+    private Date meetingEndTime;
+    private String meetingDbStatus; // This is for passing db msg in status column
+    private Boolean meetStatus; // meetStatus is like main switch/ (done)
     private Boolean oldAlreadyStatus;
     private Boolean rightTimeStatus;
     private Boolean participantStatus;
-    private Boolean meetStatus; // meetStatus is like main switch/ (done)
     private Boolean recordingStatus;
     private Boolean joinedAlreadyStatus;
     private int retry = 0;
+
+    public void setMeetingDbStatus(String meetingDbStatus) {
+        this.meetingDbStatus = meetingDbStatus;
+    }
 
     public MeetSchedule() {
         this.rightTimeStatus = false;
@@ -31,8 +38,28 @@ public class MeetSchedule implements Comparable<MeetSchedule> {
         this.meetingCode = meetingCode;
     }
 
-    public void setMeetingTime(Date meetingTime) {
-        this.meetingTime = meetingTime;
+//    public void setMeetingTime(Date meetingTime) {
+//        this.meetingTime = meetingTime;
+//    }
+
+    public void setMeetingStartTime(Date meetingStartTime) {
+        this.meetingStartTime = meetingStartTime;
+    }
+
+    public Date getMeetingStartTime() {
+        return meetingStartTime;
+    }
+
+    public Date getMeetingEndTime() {
+        return meetingEndTime;
+    }
+
+    public String getMeetingDbStatus() {
+        return meetingDbStatus;
+    }
+
+    public void setMeetingEndTime(Date meetingEndTime) {
+        this.meetingEndTime = meetingEndTime;
     }
 
     public String getWindowHandleCode() {
@@ -43,9 +70,9 @@ public class MeetSchedule implements Comparable<MeetSchedule> {
         return meetingCode;
     }
 
-    public Date getMeetingTime() {
-        return meetingTime;
-    }
+    //public Date getMeetingTime() {
+        //return meetingTime;
+   // }
 
     public Boolean getRightTimeStatus() {
         return rightTimeStatus;
@@ -106,7 +133,7 @@ public class MeetSchedule implements Comparable<MeetSchedule> {
 
     @Override
     public int compareTo(MeetSchedule o) {
-        return this.meetingTime.compareTo(o.meetingTime);
+        return this.meetingStartTime.compareTo(o.meetingStartTime);
     }
 
     @Override
@@ -114,11 +141,16 @@ public class MeetSchedule implements Comparable<MeetSchedule> {
         return "MeetSchedule{" +
                 "windowHandleCode='" + windowHandleCode + '\'' +
                 ", meetingCode='" + meetingCode + '\'' +
-                ", meetingTime=" + meetingTime +
+                ", meetingStartTime=" + meetingStartTime +
+                ", meetingEndTime=" + meetingEndTime +
+                ", meetingStatus=" + meetingDbStatus +
+                ", oldAlreadyStatus=" + oldAlreadyStatus +
                 ", rightTimeStatus=" + rightTimeStatus +
                 ", participantStatus=" + participantStatus +
                 ", meetStatus=" + meetStatus +
+                ", recordingStatus=" + recordingStatus +
+                ", joinedAlreadyStatus=" + joinedAlreadyStatus +
+                ", retry=" + retry +
                 '}';
     }
-
 }

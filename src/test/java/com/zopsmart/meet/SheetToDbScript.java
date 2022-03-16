@@ -3,7 +3,6 @@ package com.zopsmart.meet;
 import com.zopsmart.meet.utils.MyProperty;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
 import java.io.FileInputStream;
@@ -62,16 +61,29 @@ public class SheetToDbScript extends MeetBase {
             Workbook workbook = WorkbookFactory.create(fis);
             numberOfRow = workbook.getSheet("Sheet1").getLastRowNum();
             System.out.println("no. of rows: " + numberOfRow);
-            String meetingDate;
-            String meetingTime;
+
             String meetingCode;
+            String meetingStartDate;
+            String meetingStartTime;
+            String meetingEndDate;
+            String meetingEndTime;
+            String meetingStatus = null;
             String query = "";
             for (int i = 1; i <= numberOfRow; i++) {
                 meetingCode = workbook.getSheet("Sheet1").getRow(i).getCell(0).getStringCellValue();
-                meetingDate = workbook.getSheet("Sheet1").getRow(i).getCell(1).getStringCellValue();
-                meetingTime = workbook.getSheet("Sheet1").getRow(i).getCell(2).getStringCellValue();
+                meetingStartDate = workbook.getSheet("Sheet1").getRow(i).getCell(1).getStringCellValue();
+                meetingStartTime = workbook.getSheet("Sheet1").getRow(i).getCell(2).getStringCellValue();
+                meetingEndDate = workbook.getSheet("Sheet1").getRow(i).getCell(3).getStringCellValue();
+                meetingEndTime = workbook.getSheet("Sheet1").getRow(i).getCell(4).getStringCellValue();
                 query = "INSERT INTO " + tableName +
-                        " VALUES  ('" + meetingCode + "', '" + meetingDate + "', '" + meetingTime + "' );";
+                        " VALUES  ('"
+                        + meetingCode + "', '"
+                        + meetingStartDate + "', '"
+                        + meetingStartTime + "', '"
+                        + meetingEndDate + "', '"
+                        + meetingEndTime + "', '"
+                        + meetingStatus
+                        + "' );";
                 System.out.println(query);
                 try {
                     Statement statement = connection.createStatement();

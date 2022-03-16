@@ -23,15 +23,17 @@ public class MeetingUtil {
     int countCompletionOfTab = 0;
     String meetingCode;
     int waitSwitchTabInMs = 500;
+    final int minimumPreJoinInMinute = 2;
 
     public void startAndHandleAllMeetings(WebDriver driver, List<MeetSchedule> meetingSchedule) {
         Date currentTime;
-        final int minimumPreJoinInMinute = 2;
+        Collections.sort(meetingSchedule);
+
+        validateExpireTime(meetingSchedule);
         try {
-            openMeetingInTabsExceptOld(driver, meetingSchedule);
             while (countCompletionOfTab != meetingSchedule.size()) {
                 for (MeetSchedule meetSchedule : meetingSchedule) {
-                    if (meetSchedule.getMeetStatus().equals(false) ) {
+                    if (meetSchedule.getMeetStatus().equals(false)) {
                         if (meetSchedule.getRightTimeStatus()) {
                             String windowHandle = meetSchedule.getWindowHandleCode();
                             driver.switchTo().window(windowHandle);
@@ -58,7 +60,7 @@ public class MeetingUtil {
                             }
                         } else { //check right time or not
                             currentTime = new Date();
-                            long differenceInMs = meetSchedule.getMeetingTime().getTime() - currentTime.getTime();
+                            long differenceInMs = meetSchedule.getMeetingStartTime().getTime() - currentTime.getTime();
                             long differenceInMinutes = TimeUnit.MILLISECONDS.toMinutes(differenceInMs);
                             if (differenceInMinutes <= minimumPreJoinInMinute) { //isItRightTime
                                 meetSchedule.setRightTimeStatus(true);
@@ -73,25 +75,18 @@ public class MeetingUtil {
         }
     }
 
-    public void openMeetingInTabsExceptOld(WebDriver driver, List<MeetSchedule> meetingSchedule) {
+    public void validateExpireTime(List<MeetSchedule> meetingSchedule) {
         Date currentTime;
         System.out.println("\n Total meetings : " + meetingSchedule.size());
-        Collections.sort(meetingSchedule);
         try {
             for (MeetSchedule meetSchedule : meetingSchedule) {
                 currentTime = new Date();
-                if (meetSchedule.getMeetingTime().after(currentTime)) { //  if not old time then consider
-                    meetingCode = meetSchedule.getMeetingCode();
-                    driver.switchTo().newWindow(WindowType.TAB);
-                    while (driver.getWindowHandle() == null) {
-                        Thread.sleep(5000);
-                    }
-                    driver.navigate().to("https://meet.google.com/" + meetingCode);
-                    meetSchedule.setWindowHandleCode(driver.getWindowHandle());
-                } else { //  if old time then ignore
+                if (!meetSchedule.getMeetingStartTime().after(currentTime)) {
+                    //  if meeting time expire, then ignore
                     ++countCompletionOfTab;
                     meetSchedule.setMeetStatus(true);
                     meetSchedule.setOldAlreadyStatus(true);
+                    System.out.println(meetSchedule.getMeetingCode() + " - " + meetSchedule.getMeetingStartTime() + " (meet time expired already)");
                 }
             }
         } catch (Exception e) {
@@ -133,6 +128,7 @@ public class MeetingUtil {
     }
 
     void startRec(WebDriver driver, MeetSchedule meetSchedule) {
+
         RecodingPage recodingPage = new RecodingPage();
         try {
             driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(2));
@@ -174,6 +170,23 @@ public class MeetingUtil {
     }
 
     void joinTheCall(WebDriver driver, MeetSchedule meetSchedule) {
+        //open new tab, if not open already
+        if (meetSchedule.getWindowHandleCode() == null) {
+            meetingCode = meetSchedule.getMeetingCode();
+            driver.switchTo().newWindow(WindowType.TAB);
+            //wait for new tab
+            while (driver.getWindowHandle() == null) {
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            driver.navigate().to("https://meet.google.com/" + meetingCode);
+            meetSchedule.setWindowHandleCode(driver.getWindowHandle());
+        }
+
+        // join
         String windowHandleCode = meetSchedule.getWindowHandleCode();
         if (windowHandleCode != null) {
             driver.switchTo().window(windowHandleCode);
@@ -192,7 +205,7 @@ public class MeetingUtil {
                     e.printStackTrace();
                 }
             } else {
-                //retry
+                // retry
                 if (meetSchedule.getRetry() < 3) {
                     meetSchedule.setRetry(meetSchedule.getRetry() + 1);
                     driver.navigate().refresh();

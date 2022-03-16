@@ -27,22 +27,32 @@ public class ExcelUtil {
             Workbook workbook = WorkbookFactory.create(fis);
             numberOfRow = workbook.getSheet(sheetName).getLastRowNum();
             String meetingCode;
-            String meetingDate;
-            String meetingTime;
+            String meetingStartDate;
+            String meetingStartTime;
+            String meetingEndDate;
+            String meetingEndTime;
+            String meetingStatus = null;
             for (int i = 1; i <= numberOfRow; i++) {
-                meetingCode = workbook.getSheet(sheetName).getRow(i).getCell(MEETING_CODE).getStringCellValue();
-                meetingDate = workbook.getSheet(sheetName).getRow(i).getCell(MEETING_DATE).getStringCellValue();
-                meetingTime = workbook.getSheet(sheetName).getRow(i).getCell(MEETING_TIME).getStringCellValue();
-                Date meetDateTime = null;
+
+                meetingCode = workbook.getSheet("Sheet1").getRow(i).getCell(0).getStringCellValue();
+                meetingStartDate = workbook.getSheet("Sheet1").getRow(i).getCell(1).getStringCellValue();
+                meetingStartTime = workbook.getSheet("Sheet1").getRow(i).getCell(2).getStringCellValue();
+                meetingEndDate = workbook.getSheet("Sheet1").getRow(i).getCell(3).getStringCellValue();
+                meetingEndTime = workbook.getSheet("Sheet1").getRow(i).getCell(4).getStringCellValue();
+
+                Date meetStartDateTime = null;
+                Date meetEndDateTime = null;
                 try {
-                    meetDateTime = dateParser.parse(meetingDate + " " + meetingTime);
+                    meetStartDateTime = dateParser.parse(meetingStartDate + " " + meetingStartTime);
+                    meetEndDateTime = dateParser.parse(meetingEndDate + " " + meetingEndTime);
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
 
                 meetSchedule = new MeetSchedule();
                 meetSchedule.setMeetingCode(meetingCode);
-                meetSchedule.setMeetingTime(meetDateTime);
+                meetSchedule.setMeetingStartTime(meetStartDateTime);
+                meetSchedule.setMeetingEndTime(meetEndDateTime);
                 meetingSchedule.add(meetSchedule);
             }
             workbook.close();
@@ -52,4 +62,5 @@ public class ExcelUtil {
         }
         return meetingSchedule;
     }
+
 }
