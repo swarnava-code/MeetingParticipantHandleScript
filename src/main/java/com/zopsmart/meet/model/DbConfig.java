@@ -5,12 +5,12 @@ public class DbConfig {
     private String dbPassword;
     private String dbUrl;
     private String tableName;
-    public static final int COL_MEETING_CODE = 1;
-    public static final int COL_MEETING_START_DATE = 2;
-    public static final int COL_MEETING_START_TIME = 3;
-    public static final int COL_MEETING_END_DATE = 4;
-    public static final int COL_MEETING_END_TIME = 5;
-    public static final int COL_STATUS = 6;
+    public final int COL_MEETING_CODE = 1;
+    public final int COL_MEETING_START_DATE = 2;
+    public final int COL_MEETING_START_TIME = 3;
+    public final int COL_MEETING_END_DATE = 4;
+    public final int COL_MEETING_END_TIME = 5;
+    public final int COL_STATUS = 6;
 
     public DbConfig(String dbUserName, String dbPassword, String dbUrl, String tableName) {
         this.dbUserName = dbUserName;

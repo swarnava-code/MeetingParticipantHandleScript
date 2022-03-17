@@ -30,19 +30,18 @@ public class MeetScript extends MeetBase {
     @Test(priority = 2)
     void recodingTest() {
         try {
-            DataBaseUtil dataBaseUtil = new DataBaseUtil();
-            SignInPage signInPage = new SignInPage();
             DbConfig dbConfig = new DbConfig(dbUserName, dbPassword, dbUrl, tableName);
-            List<MeetSchedule> meetingSchedule = dataBaseUtil.readDataFromDB(dbConfig);
+            DataBaseUtil dataBaseUtil = new DataBaseUtil(dbConfig);
+            SignInPage signInPage = new SignInPage();
 
-            for (MeetSchedule meet :
-                    meetingSchedule) {
-                System.out.println(meet.toString());
-            }
+            List<MeetSchedule> meetingSchedule = dataBaseUtil.readDataFromDB();
+
+//            meetingSchedule.get(2).setMeetDbStatus("Hello BoAt");
+//            dataBaseUtil.updateStatus(meetingSchedule.get(2));
 
             signInPage.signIn(driver, meetUserName, meetPassword, meetUrl);
             MeetingUtil meetingUtil = new MeetingUtil();
-            meetingUtil.startAndHandleAllMeetings(driver, meetingSchedule);
+            meetingUtil.startAndHandleAllMeetings(driver, meetingSchedule, dataBaseUtil);
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -8,7 +8,7 @@ public class MeetSchedule implements Comparable<MeetSchedule> {
     //private Date meetingTime;
     private Date meetingStartTime;
     private Date meetingEndTime;
-    private String meetingDbStatus; // This is for passing db msg in status column
+    private String meetDbStatus; // This is for passing db msg in status column
     private Boolean meetStatus; // meetStatus is like main switch/ (done)
     private Boolean oldAlreadyStatus;
     private Boolean rightTimeStatus;
@@ -17,8 +17,8 @@ public class MeetSchedule implements Comparable<MeetSchedule> {
     private Boolean joinedAlreadyStatus;
     private int retry = 0;
 
-    public void setMeetingDbStatus(String meetingDbStatus) {
-        this.meetingDbStatus = meetingDbStatus;
+    public void setMeetDbStatus(String meetDbStatus) {
+        this.meetDbStatus = meetDbStatus;
     }
 
     public MeetSchedule() {
@@ -54,8 +54,8 @@ public class MeetSchedule implements Comparable<MeetSchedule> {
         return meetingEndTime;
     }
 
-    public String getMeetingDbStatus() {
-        return meetingDbStatus;
+    public String getMeetDbStatus() {
+        return meetDbStatus;
     }
 
     public void setMeetingEndTime(Date meetingEndTime) {
@@ -97,7 +97,6 @@ public class MeetSchedule implements Comparable<MeetSchedule> {
     public void setMeetStatus(Boolean meetStatus) {
         this.meetStatus = meetStatus;
     }
-
 
     public Boolean getRecordingStatus() {
         return recordingStatus;
@@ -143,7 +142,7 @@ public class MeetSchedule implements Comparable<MeetSchedule> {
                 ", meetingCode='" + meetingCode + '\'' +
                 ", meetingStartTime=" + meetingStartTime +
                 ", meetingEndTime=" + meetingEndTime +
-                ", meetingStatus=" + meetingDbStatus +
+                ", meetDbStatus=" + meetDbStatus +
                 ", oldAlreadyStatus=" + oldAlreadyStatus +
                 ", rightTimeStatus=" + rightTimeStatus +
                 ", participantStatus=" + participantStatus +
@@ -153,4 +152,5 @@ public class MeetSchedule implements Comparable<MeetSchedule> {
                 ", retry=" + retry +
                 '}';
     }
+
 }

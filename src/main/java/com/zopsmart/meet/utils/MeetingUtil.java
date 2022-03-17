@@ -1,6 +1,8 @@
 package com.zopsmart.meet.utils;
 
+import com.zopsmart.meet.model.DbConfig;
 import com.zopsmart.meet.model.MeetSchedule;
+import com.zopsmart.meet.model.MyMessage;
 import com.zopsmart.meet.pom.JoinNowPage;
 import com.zopsmart.meet.pom.RecodingPage;
 import org.apache.commons.io.FileUtils;
@@ -19,16 +21,18 @@ import java.util.concurrent.TimeUnit;
 
 public class MeetingUtil {
     MyUtil utils = new MyUtil();
+    DataBaseUtil dataBaseUtil;
+    MyMessage myMessage = new MyMessage();
     final int minimumParticipantToLeftTheCall = 2;
     int countCompletionOfTab = 0;
     String meetingCode;
     int waitSwitchTabInMs = 500;
     final int minimumPreJoinInMinute = 2;
 
-    public void startAndHandleAllMeetings(WebDriver driver, List<MeetSchedule> meetingSchedule) {
+    public void startAndHandleAllMeetings(WebDriver driver, List<MeetSchedule> meetingSchedule, DataBaseUtil dataBaseUtil) {
+        this.dataBaseUtil = dataBaseUtil;
         Date currentTime;
         Collections.sort(meetingSchedule);
-
         validateExpireTime(meetingSchedule);
         try {
             while (countCompletionOfTab != meetingSchedule.size()) {
@@ -43,6 +47,8 @@ public class MeetingUtil {
                                     if (checkParticipant(driver, meetSchedule)) {
                                         try {
                                             leaveTheMeetingCall(driver);
+                                            meetSchedule.setMeetDbStatus(myMessage.recCompleted);
+                                            dataBaseUtil.updateDbStatus(meetSchedule);
                                             meetSchedule.setParticipantStatus(true);
                                             meetSchedule.setMeetStatus(true);
                                             driver.close();
@@ -128,7 +134,8 @@ public class MeetingUtil {
     }
 
     void startRec(WebDriver driver, MeetSchedule meetSchedule) {
-
+        meetSchedule.setMeetDbStatus(myMessage.startRecording);
+        dataBaseUtil.updateDbStatus(meetSchedule);
         RecodingPage recodingPage = new RecodingPage();
         try {
             driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(2));
@@ -136,6 +143,8 @@ public class MeetingUtil {
             driver.findElement(recodingPage.getDismissPopup()).click();
             driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(25));
         } catch (Exception e) {
+            meetSchedule.setMeetDbStatus(myMessage.recFailed);
+            dataBaseUtil.updateDbStatus(meetSchedule);
             e.printStackTrace();
         }
 
@@ -147,8 +156,12 @@ public class MeetingUtil {
             Thread.sleep(1000);
             if (driver.findElement(recodingPage.getRecordingIndicator()).isDisplayed()) {
                 meetSchedule.setRecordingStatus(true);
+                meetSchedule.setMeetDbStatus(myMessage.recInProgress);
+                dataBaseUtil.updateDbStatus(meetSchedule);
             }
         } catch (Exception e) {
+            meetSchedule.setMeetDbStatus(myMessage.recFailed);
+            dataBaseUtil.updateDbStatus(meetSchedule);
             takeScreenshot(driver);
         }
     }
@@ -170,6 +183,8 @@ public class MeetingUtil {
     }
 
     void joinTheCall(WebDriver driver, MeetSchedule meetSchedule) {
+        meetSchedule.setMeetDbStatus(myMessage.newQueue);
+        dataBaseUtil.updateDbStatus(meetSchedule);
         //open new tab, if not open already
         if (meetSchedule.getWindowHandleCode() == null) {
             meetingCode = meetSchedule.getMeetingCode();
