@@ -51,6 +51,4 @@ public class DbConfig {
         this.tableName = tableName;
     }
 
-
-
 }

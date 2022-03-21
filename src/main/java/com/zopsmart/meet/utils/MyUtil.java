@@ -7,6 +7,7 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import javax.swing.*;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,6 +37,16 @@ public class MyUtil {
         prefs.put("profile.default_content_setting_values.media_stream_camera", enableOrDisable);
         chromeOptions.setExperimentalOption("prefs", prefs);
         return chromeOptions;
+    }
+
+    public String takeUserInput(String message) {
+        String input = "";
+        try {
+            input = JOptionPane.showInputDialog(message);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return input;
     }
 
 }

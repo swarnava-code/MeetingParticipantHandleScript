@@ -28,13 +28,6 @@ public class SignInPage {
         );
         passwordInput.sendKeys(password);
         driver.findElement(passwordNextButton).click();
-        //  log.info("login successfully");
-//        try {
-//            Thread.sleep(2000);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-
         try {
             webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("a[class='gb_A gb_Ka gb_f']")));
         } catch (Exception e) {

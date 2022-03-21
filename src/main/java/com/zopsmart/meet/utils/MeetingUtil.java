@@ -1,8 +1,6 @@
 package com.zopsmart.meet.utils;
 
-import com.zopsmart.meet.model.DbConfig;
 import com.zopsmart.meet.model.MeetSchedule;
-import com.zopsmart.meet.model.MyMessage;
 import com.zopsmart.meet.pom.JoinNowPage;
 import com.zopsmart.meet.pom.RecodingPage;
 import org.apache.commons.io.FileUtils;
@@ -22,14 +20,13 @@ import java.util.concurrent.TimeUnit;
 public class MeetingUtil {
     MyUtil utils = new MyUtil();
     DataBaseUtil dataBaseUtil;
-    MyMessage myMessage = new MyMessage();
     final int minimumParticipantToLeftTheCall = 2;
     int countCompletionOfTab = 0;
     String meetingCode;
     int waitSwitchTabInMs = 500;
     final int minimumPreJoinInMinute = 2;
 
-    public void startAndHandleAllMeetings(WebDriver driver, List<MeetSchedule> meetingSchedule, DataBaseUtil dataBaseUtil) {
+    public void startAndHandleAllMeetings(WebDriver driver, List<MeetSchedule> meetingSchedule, DataBaseUtil dataBaseUtil, int tabCapacity) {
         this.dataBaseUtil = dataBaseUtil;
         Date currentTime;
         Collections.sort(meetingSchedule);
@@ -41,13 +38,16 @@ public class MeetingUtil {
                         if (meetSchedule.getRightTimeStatus()) {
                             String windowHandle = meetSchedule.getWindowHandleCode();
                             driver.switchTo().window(windowHandle);
+                            System.out.println("=tabCapacity  : " + tabCapacity);
+                            System.out.println("=driver.getWindowHandles().size()   : "
+                                    + driver.getWindowHandles().size());
                             if (meetSchedule.getJoinedAlreadyStatus()) {
                                 if (meetSchedule.getRecordingStatus()) {
                                     Thread.sleep(waitSwitchTabInMs);
                                     if (checkParticipant(driver, meetSchedule)) {
                                         try {
                                             leaveTheMeetingCall(driver);
-                                            meetSchedule.setMeetDbStatus(myMessage.recCompleted);
+                                            meetSchedule.setMeetDbStatus("RECORDING COMPLETED");
                                             dataBaseUtil.updateDbStatus(meetSchedule);
                                             meetSchedule.setParticipantStatus(true);
                                             meetSchedule.setMeetStatus(true);
@@ -62,7 +62,16 @@ public class MeetingUtil {
                                     startRec(driver, meetSchedule);
                                 }
                             } else {
-                                joinTheCall(driver, meetSchedule);
+                                System.out.println("~tabCapacity  : " + tabCapacity);
+                                System.out.println("~driver.getWindowHandles().size()   : "
+                                        + driver.getWindowHandles().size());
+                                if ((tabCapacity) >= driver.getWindowHandles().size()+1) {
+                                    joinTheCall(driver, meetSchedule);
+                                } else {
+                                    System.out.println("Can't open : \n" + meetingSchedule.toString());
+                                    System.out.println("Only limited tab will open due to limited system capacity=(" +
+                                            tabCapacity + ").");
+                                }
                             }
                         } else { //check right time or not
                             currentTime = new Date();
@@ -70,7 +79,17 @@ public class MeetingUtil {
                             long differenceInMinutes = TimeUnit.MILLISECONDS.toMinutes(differenceInMs);
                             if (differenceInMinutes <= minimumPreJoinInMinute) { //isItRightTime
                                 meetSchedule.setRightTimeStatus(true);
-                                joinTheCall(driver, meetSchedule);
+
+                                System.out.println("@tabCapacity  : " + tabCapacity);
+                                System.out.println("@driver.getWindowHandles().size()   : "
+                                        + driver.getWindowHandles().size());
+                                if ((tabCapacity) >= driver.getWindowHandles().size()+1) {
+                                    joinTheCall(driver, meetSchedule);
+                                } else {
+                                    System.out.println("Can't open : \n" + meetingSchedule.toString());
+                                    System.out.println("Only limited tab will open due to limited system capacity=(" +
+                                            tabCapacity + ").");
+                                }
                             }
                         }
                     }
@@ -134,7 +153,7 @@ public class MeetingUtil {
     }
 
     void startRec(WebDriver driver, MeetSchedule meetSchedule) {
-        meetSchedule.setMeetDbStatus(myMessage.startRecording);
+        meetSchedule.setMeetDbStatus("STARTING RECORDING");
         dataBaseUtil.updateDbStatus(meetSchedule);
         RecodingPage recodingPage = new RecodingPage();
         try {
@@ -143,7 +162,7 @@ public class MeetingUtil {
             driver.findElement(recodingPage.getDismissPopup()).click();
             driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(25));
         } catch (Exception e) {
-            meetSchedule.setMeetDbStatus(myMessage.recFailed);
+            meetSchedule.setMeetDbStatus("RECORDING FAILED");
             dataBaseUtil.updateDbStatus(meetSchedule);
             e.printStackTrace();
         }
@@ -156,11 +175,11 @@ public class MeetingUtil {
             Thread.sleep(1000);
             if (driver.findElement(recodingPage.getRecordingIndicator()).isDisplayed()) {
                 meetSchedule.setRecordingStatus(true);
-                meetSchedule.setMeetDbStatus(myMessage.recInProgress);
+                meetSchedule.setMeetDbStatus("RECORDING IN-PROGRESS");
                 dataBaseUtil.updateDbStatus(meetSchedule);
             }
         } catch (Exception e) {
-            meetSchedule.setMeetDbStatus(myMessage.recFailed);
+            meetSchedule.setMeetDbStatus("RECORDING FAILED");
             dataBaseUtil.updateDbStatus(meetSchedule);
             takeScreenshot(driver);
         }
@@ -183,8 +202,7 @@ public class MeetingUtil {
     }
 
     void joinTheCall(WebDriver driver, MeetSchedule meetSchedule) {
-        meetSchedule.setMeetDbStatus(myMessage.newQueue);
-        dataBaseUtil.updateDbStatus(meetSchedule);
+
         //open new tab, if not open already
         if (meetSchedule.getWindowHandleCode() == null) {
             meetingCode = meetSchedule.getMeetingCode();
@@ -199,6 +217,8 @@ public class MeetingUtil {
             }
             driver.navigate().to("https://meet.google.com/" + meetingCode);
             meetSchedule.setWindowHandleCode(driver.getWindowHandle());
+            meetSchedule.setMeetDbStatus("NEW");
+            dataBaseUtil.updateDbStatus(meetSchedule);
         }
 
         // join
@@ -230,6 +250,8 @@ public class MeetingUtil {
                     driver.close();
                 }
             }
+            meetSchedule.setMeetDbStatus("QUEUED");
+            dataBaseUtil.updateDbStatus(meetSchedule);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -270,4 +292,5 @@ public class MeetingUtil {
         }
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(25));
     }
+
 }

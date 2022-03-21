@@ -6,6 +6,7 @@ import com.zopsmart.meet.pom.SignInPage;
 import com.zopsmart.meet.utils.DataBaseUtil;
 import com.zopsmart.meet.utils.MeetingUtil;
 import com.zopsmart.meet.utils.MyProperty;
+import com.zopsmart.meet.utils.MyUtil;
 import org.testng.annotations.Test;
 
 import java.util.*;
@@ -29,19 +30,20 @@ public class MeetScript extends MeetBase {
 
     @Test(priority = 2)
     void recodingTest() {
+        int tabCapacity = 3;
+        try {
+            tabCapacity = Integer.parseInt(new MyUtil().takeUserInput("Enter tab capacity"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         try {
             DbConfig dbConfig = new DbConfig(dbUserName, dbPassword, dbUrl, tableName);
             DataBaseUtil dataBaseUtil = new DataBaseUtil(dbConfig);
             SignInPage signInPage = new SignInPage();
-
             List<MeetSchedule> meetingSchedule = dataBaseUtil.readDataFromDB();
-
-//            meetingSchedule.get(2).setMeetDbStatus("Hello BoAt");
-//            dataBaseUtil.updateStatus(meetingSchedule.get(2));
-
             signInPage.signIn(driver, meetUserName, meetPassword, meetUrl);
             MeetingUtil meetingUtil = new MeetingUtil();
-            meetingUtil.startAndHandleAllMeetings(driver, meetingSchedule, dataBaseUtil);
+            meetingUtil.startAndHandleAllMeetings(driver, meetingSchedule, dataBaseUtil, tabCapacity);
         } catch (Exception e) {
             e.printStackTrace();
         }

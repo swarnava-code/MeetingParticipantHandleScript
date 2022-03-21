@@ -23,7 +23,7 @@ public class MeetBase {
     String sheetPath;
     String sheetName;
     String tableName;
-    final String PATH_PROPERTY_FILE = "/home/swarnava/Desktop/password/dataFile.properties";
+    public final String PATH_PROPERTY_FILE = "/home/swarnava/Desktop/password/dataFile.properties";
 
     @BeforeClass
     public void setUpDriver() {

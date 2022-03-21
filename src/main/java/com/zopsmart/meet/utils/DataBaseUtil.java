@@ -1,5 +1,6 @@
 package com.zopsmart.meet.utils;
 
+import com.zopsmart.meet.customexception.InvalidTime;
 import com.zopsmart.meet.model.DbConfig;
 import com.zopsmart.meet.model.MeetSchedule;
 
@@ -50,6 +51,7 @@ public class DataBaseUtil {
                 }
                 meetSchedule = new MeetSchedule();
                 meetSchedule.setMeetingCode(meetingCode);
+                validateTime(meetStartDateTime, meetEndDateTime);
                 meetSchedule.setMeetingStartTime(meetStartDateTime);
                 meetSchedule.setMeetingEndTime(meetEndDateTime);
                 meetingSchedule.add(meetSchedule);
@@ -59,6 +61,12 @@ public class DataBaseUtil {
             e.printStackTrace();
         }
         return meetingSchedule;
+    }
+
+    void validateTime(Date startTime, Date endTime) throws InvalidTime {
+        if (startTime.after(endTime)) {
+            throw new InvalidTime("relation between start time and end time is invalid! " + startTime + "-" + endTime);
+        }
     }
 
     public boolean updateDbStatus(MeetSchedule meetSchedule) {
@@ -77,7 +85,7 @@ public class DataBaseUtil {
             ps.setString(2, meetCode);
             ps.executeUpdate();
         } catch (Exception e) {
-            System.out.println("dbStatus update failed due to "+e);
+            System.out.println("dbStatus update failed due to " + e);
             return false;
         }
         return true;
