@@ -26,7 +26,8 @@ public class MeetingUtil {
     int waitSwitchTabInMs = 500;
     final int minimumPreJoinInMinute = 2;
 
-    public void startAndHandleAllMeetings(WebDriver driver, List<MeetSchedule> meetingSchedule, DataBaseUtil dataBaseUtil, int tabCapacity) {
+    public void startAndHandleAllMeetings(WebDriver driver, List<MeetSchedule> meetingSchedule,
+                                          DataBaseUtil dataBaseUtil, int tabCapacity) {
         this.dataBaseUtil = dataBaseUtil;
         Date currentTime;
         Collections.sort(meetingSchedule);
@@ -38,9 +39,6 @@ public class MeetingUtil {
                         if (meetSchedule.getRightTimeStatus()) {
                             String windowHandle = meetSchedule.getWindowHandleCode();
                             driver.switchTo().window(windowHandle);
-                            System.out.println("=tabCapacity  : " + tabCapacity);
-                            System.out.println("=driver.getWindowHandles().size()   : "
-                                    + driver.getWindowHandles().size());
                             if (meetSchedule.getJoinedAlreadyStatus()) {
                                 if (meetSchedule.getRecordingStatus()) {
                                     Thread.sleep(waitSwitchTabInMs);
@@ -62,12 +60,11 @@ public class MeetingUtil {
                                     startRec(driver, meetSchedule);
                                 }
                             } else {
-                                System.out.println("~tabCapacity  : " + tabCapacity);
-                                System.out.println("~driver.getWindowHandles().size()   : "
-                                        + driver.getWindowHandles().size());
-                                if ((tabCapacity) >= driver.getWindowHandles().size()+1) {
+                                if ((tabCapacity) >= driver.getWindowHandles().size() + 1) {
                                     joinTheCall(driver, meetSchedule);
                                 } else {
+                                    meetSchedule.setMeetDbStatus("QUEUED");
+                                    dataBaseUtil.updateDbStatus(meetSchedule);
                                     System.out.println("Can't open : \n" + meetingSchedule.toString());
                                     System.out.println("Only limited tab will open due to limited system capacity=(" +
                                             tabCapacity + ").");
@@ -77,15 +74,13 @@ public class MeetingUtil {
                             currentTime = new Date();
                             long differenceInMs = meetSchedule.getMeetingStartTime().getTime() - currentTime.getTime();
                             long differenceInMinutes = TimeUnit.MILLISECONDS.toMinutes(differenceInMs);
-                            if (differenceInMinutes <= minimumPreJoinInMinute) { //isItRightTime
-                                meetSchedule.setRightTimeStatus(true);
-
-                                System.out.println("@tabCapacity  : " + tabCapacity);
-                                System.out.println("@driver.getWindowHandles().size()   : "
-                                        + driver.getWindowHandles().size());
-                                if ((tabCapacity) >= driver.getWindowHandles().size()+1) {
+                            if (differenceInMinutes <= minimumPreJoinInMinute ) { //isItRightTime
+                                if ((tabCapacity) >= driver.getWindowHandles().size() + 1) {
+                                    meetSchedule.setRightTimeStatus(true);
                                     joinTheCall(driver, meetSchedule);
                                 } else {
+                                    meetSchedule.setMeetDbStatus("QUEUED");
+                                    dataBaseUtil.updateDbStatus(meetSchedule);
                                     System.out.println("Can't open : \n" + meetingSchedule.toString());
                                     System.out.println("Only limited tab will open due to limited system capacity=(" +
                                             tabCapacity + ").");
@@ -111,7 +106,8 @@ public class MeetingUtil {
                     ++countCompletionOfTab;
                     meetSchedule.setMeetStatus(true);
                     meetSchedule.setOldAlreadyStatus(true);
-                    System.out.println(meetSchedule.getMeetingCode() + " - " + meetSchedule.getMeetingStartTime() + " (meet time expired already)");
+                    System.out.println(meetSchedule.getMeetingCode() + " - " + meetSchedule.getMeetingStartTime()
+                            + " (meet time expired already)");
                 }
             }
         } catch (Exception e) {
@@ -160,12 +156,11 @@ public class MeetingUtil {
             driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(2));
             Thread.sleep(1000);
             driver.findElement(recodingPage.getDismissPopup()).click();
-            driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(25));
         } catch (Exception e) {
-            meetSchedule.setMeetDbStatus("RECORDING FAILED");
-            dataBaseUtil.updateDbStatus(meetSchedule);
+            System.out.println("popup not found for " + meetSchedule.getMeetingCode());
             e.printStackTrace();
         }
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(25));
 
         try {
             driver.findElement(recodingPage.getMoreOptions()).click();
@@ -179,6 +174,7 @@ public class MeetingUtil {
                 dataBaseUtil.updateDbStatus(meetSchedule);
             }
         } catch (Exception e) {
+            System.out.println("RECORDING FAILED");
             meetSchedule.setMeetDbStatus("RECORDING FAILED");
             dataBaseUtil.updateDbStatus(meetSchedule);
             takeScreenshot(driver);
@@ -250,8 +246,6 @@ public class MeetingUtil {
                     driver.close();
                 }
             }
-            meetSchedule.setMeetDbStatus("QUEUED");
-            dataBaseUtil.updateDbStatus(meetSchedule);
         } catch (Exception e) {
             e.printStackTrace();
         }

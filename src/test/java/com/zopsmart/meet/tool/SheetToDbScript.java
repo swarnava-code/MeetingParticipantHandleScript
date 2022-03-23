@@ -68,7 +68,7 @@ public class SheetToDbScript extends MeetBase {
             String meetingStartTime;
             String meetingEndDate;
             String meetingEndTime;
-            String meetingStatus = null;
+            String meetingStatus = "";
             String query = "";
             for (int i = 1; i <= numberOfRow; i++) {
                 meetingCode = workbook.getSheet("Sheet1").getRow(i).getCell(0).getStringCellValue();

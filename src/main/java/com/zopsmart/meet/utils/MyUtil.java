@@ -39,10 +39,14 @@ public class MyUtil {
         return chromeOptions;
     }
 
-    public String takeUserInput(String message) {
+    public String takeUserInput(String title, String message, String initialValue) {
         String input = "";
+        Icon icon = new ImageIcon("src/main/resources/com_logo.png");
         try {
-            input = JOptionPane.showInputDialog(message);
+            JOptionPane jOptionPane = new JOptionPane();
+            jOptionPane.setIcon(icon);
+            input = (String) JOptionPane.showInputDialog(null, message, title,
+                    JOptionPane.INFORMATION_MESSAGE, icon, null, initialValue);
         } catch (Exception e) {
             e.printStackTrace();
         }

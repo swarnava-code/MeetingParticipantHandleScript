@@ -32,7 +32,8 @@ public class MeetScript extends MeetBase {
     void recodingTest() {
         int tabCapacity = 3;
         try {
-            tabCapacity = Integer.parseInt(new MyUtil().takeUserInput("Enter tab capacity"));
+            tabCapacity = Integer.parseInt(
+                    new MyUtil().takeUserInput("Tab Capacity", "Enter tab capacity", ""+tabCapacity));
         } catch (Exception e) {
             e.printStackTrace();
         }

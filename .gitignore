@@ -1,5 +1,6 @@
 /target/
-.idea/
+/.idea/
+/.idea/*
 logs/
 screenshots/
 zopsmart_meet.iml
@@ -7,3 +8,6 @@ src/main/files/.*
 src/test/java/com/zopsmart/meet/test/*
 src/test/java/com/zopsmart/meet/MeetScript3.java
 src/test/java/com/zopsmart/meet/CassandraConnector.java
+src/main/java/META-INF/
+src/main/java/com/zopsmart/meet/Main.java
+src/main/resources/META-INF/MANIFEST.MF
